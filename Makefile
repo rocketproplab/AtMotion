@@ -13,7 +13,7 @@ ${OBJ_DIR}/cpp/%.o: cpp/%.cpp
 	$(CC) -g -c $< -o $@
 
 build/test/FrameProcessor: ${TEST_DIR}/FrameProcessorTest.cpp ${BUILD_DIR}/cpp/FrameProcessor.o
-	@mkdir -p ${OBJ_DIR}
+	@mkdir -p ${OBJ_DIR}/test/
 	echo ${DIS_FILES}
 	$(CC) -I ${CPP_DIR} -g $< ${BUILD_DIR}/cpp/FrameProcessor.o -o $@
 # build/test/%: ${TEST_DIR}/%.cpp ${DIS_FILES}
