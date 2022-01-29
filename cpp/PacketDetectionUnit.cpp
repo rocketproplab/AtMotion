@@ -3,10 +3,10 @@
 // PacketDetectionUnit::clock:
 // Inputs: int FIFO that represents 30 bits of encoded data from the FIFO the PDU is checking
 // Outputs: bool if a packet is detected or not
-bool RPL::PacketDetectionUnit::clock(int prev_word, int FIFO[30]) {
+bool RPL::PacketDetectionUnit::clock(int prev_word[30], int FIFO[30]) {
 
-    int D29star = prev_word & 2; //Selects 2nd bit of the 32 bit input integer
-    int D30star = prev_word & 1; //Selects 1st bit of the 32 bit input integer
+    int D29star = prev_word[28];
+    int D30star = prev_word[29];
 
     //Find the unencoded data by xoring sent data with D30star to recover d1, as according to Parity Encoding Equations.
     //Note: d[0] = 0 so that indexing will match Parity Encoding Equations when recomputing parity bits

@@ -3,14 +3,18 @@
 
 MU_TEST(with_preamble_and_parity_matching){
     RPL::PacketDetectionUnit PDU;
-    int prev_word = 3; //Only 2 LSBs matter, this should both be 1
-    int D29star = prev_word & 2;
-    int D30star = prev_word & 1;
+    int prev_word[30] = { 0 };
+    prev_word[28] = 1;
+    prev_word[29] = 1;
+
+    int D29star = prev_word[28];
+    int D30star = prev_word[29];
+
     int FIFO[30] = {};
 
-    int d[25] = {0, 0, 1, 1, 1, 0, 1, 0, 0}; //inverse of preamble because we are xoring it with D30Star = 1
+    int d[25] = {0, 0, 1, 1, 1, 0, 1, 0, 0}; //inverse of preamble because we are xoring it with D30Star = 1, so this will give the preamble. d[0] = 0 to align with indexing.
 
-    for(int i = 1; i < 25; i++) {
+    for(int i = 1; i < 25; i++) { //Encode data with D30Star, according to encoding specification
         FIFO[i-1] = (d[i] + D30star) % 2;
     }
 
@@ -36,12 +40,15 @@ MU_TEST(with_preamble_and_parity_matching){
 
 MU_TEST(with_preamble_and_parity_not_matching){
     RPL::PacketDetectionUnit PDU;
-    int prev_word = 3; //Only 2 LSBs matter, this should both be 1
-    int D29star = prev_word & 2;
-    int D30star = prev_word & 1;
+    int prev_word[30] = { 0 };
+    prev_word[28] = 1;
+    prev_word[29] = 1;
+
+    int D29star = prev_word[28];
+    int D30star = prev_word[29];
     int FIFO[30] = {};
 
-    int d[25] = {0, 0, 1, 1, 1, 0, 1, 0, 0}; //inverse of preamble because we are xoring it with D30Star = 1, so this will give the preamble
+    int d[25] = {0, 0, 1, 1, 1, 0, 1, 0, 0}; //inverse of preamble because we are xoring it with D30Star = 1, so this will give the preamble. d[0] = 0 to align with indexing.
 
     for(int i = 1; i < 25; i++) {
         FIFO[i-1] = (d[i] + D30star) % 2;
@@ -63,17 +70,21 @@ MU_TEST(with_preamble_and_parity_not_matching){
     FIFO[29] = D30_computed;
 
     auto result = PDU.clock(prev_word, FIFO);
-    mu_assert(result, "preamble with matching parity failed");
+    mu_assert(!result, "preamble without matching parity failed"); //Note: mu_assert checks that the result is true. In this case we want the function to return false (parity not matching)
+                                                               //       so we should pass mu_assert !result as the test has passed if result == False
 }
 
 MU_TEST(without_preamble_and_parity_matching){
     RPL::PacketDetectionUnit PDU;
-    int prev_word = 3; //Only 2 LSBs matter, this should both be 1
-    int D29star = prev_word & 2;
-    int D30star = prev_word & 1;
+    int prev_word[30] = { 0 };
+    prev_word[28] = 1;
+    prev_word[29] = 1;
+
+    int D29star = prev_word[28];
+    int D30star = prev_word[29];
     int FIFO[30] = {};
 
-    int d[25] = {1, 0, 1, 1, 1, 0, 1, 0, 0}; //inverse of preamble because we are xoring it with D30Star = 1, but with first bit flipped so it should not detect the preamble
+    int d[25] = {0, 1, 1, 1, 1, 0, 1, 0, 0}; //inverse of preamble because we are xoring it with D30Star = 1. d[0] = 0 to align with indexing. First bit of preamble flipped so it won't match
 
     for(int i = 1; i < 25; i++) {
         FIFO[i-1] = (d[i] + D30star) % 2;
@@ -95,17 +106,20 @@ MU_TEST(without_preamble_and_parity_matching){
     FIFO[29] = D30_computed;
 
     auto result = PDU.clock(prev_word, FIFO);
-    mu_assert(result, "preamble with matching parity failed");
+    mu_assert(!result, "without preamble with matching parity failed"); //We pass !result since this test is without the preamble and passes if result == FALSE
 }
 
 MU_TEST(without_preamble_and_parity_not_matching){
-        RPL::PacketDetectionUnit PDU;
-    int prev_word = 3; //Only 2 LSBs matter, this should both be 1
-    int D29star = prev_word & 2;
-    int D30star = prev_word & 1;
+    RPL::PacketDetectionUnit PDU;
+    int prev_word[30] = { 0 };
+    prev_word[28] = 1;
+    prev_word[29] = 1;
+
+    int D29star = prev_word[28];
+    int D30star = prev_word[29];
     int FIFO[30] = {};
 
-    int d[25] = {0, 0, 1, 1, 1, 0, 1, 0, 0}; //inverse of preamble because we are xoring it with D30Star = 1
+    int d[25] = {0, 1, 1, 1, 1, 0, 1, 0, 0}; //inverse of preamble because we are xoring it with D30Star = 1. d[0] = 0 to align with indexing. First bit of preamble flipped so it won't match
 
     for(int i = 1; i < 25; i++) {
         FIFO[i-1] = (d[i] + D30star) % 2;
@@ -127,7 +141,7 @@ MU_TEST(without_preamble_and_parity_not_matching){
     FIFO[29] = D30_computed;
 
     auto result = PDU.clock(prev_word, FIFO);
-    mu_assert(result, "preamble with matching parity failed");
+    mu_assert(!result, "without preamble and without matching parity failed"); //We Pass !result since this test has wrong preamble and parity, so it passes if result == FALSE
 }
 
 
