@@ -16,6 +16,11 @@ build/test/FrameProcessor: ${TEST_DIR}/FrameProcessorTest.cpp ${BUILD_DIR}/cpp/F
 	@mkdir -p ${OBJ_DIR}/test/
 	echo ${DIS_FILES}
 	$(CC) -I ${CPP_DIR} -g $< ${BUILD_DIR}/cpp/FrameProcessor.o -o $@
+
+build/test/PacketDetectionUnit: ${TEST_DIR}/PacketDetectionUnit.cpp ${BUILD_DIR}/cpp/PacketDetectionUnit.o
+	@mkdir -p ${OBJ_DIR}/test/
+	echo ${DIS_FILES}
+	$(CC) -I ${CPP_DIR} -g $< ${BUILD_DIR}/cpp/PacketDetectionUnit.o -o $@
 # build/test/%: ${TEST_DIR}/%.cpp ${DIS_FILES}
 # 	@mkdir -p ${OBJ_DIR}
 # 	$(CC) g $< ${DIS_FILES} -o $@

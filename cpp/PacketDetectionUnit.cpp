@@ -1,4 +1,4 @@
-#include PacketDetectionUnit.h
+#include "PacketDetectionUnit.h"
 
 // PacketDetectionUnit::clock:
 // Inputs: int FIFO that represents 30 bits of encoded data from the FIFO the PDU is checking
@@ -14,7 +14,7 @@ bool RPL::PacketDetectionUnit::clock(int prev_word, int FIFO[30]) {
     int d[25] = {};
     d[0] = 0;
     for(int i = 1; i < 25; i++) {
-        unencoded_data[i] = (FIFO[i-1] + D30star) % 2;
+        d[i] = (FIFO[i-1] + D30star) % 2;
     }
 
 
@@ -23,7 +23,7 @@ bool RPL::PacketDetectionUnit::clock(int prev_word, int FIFO[30]) {
     //Iterate through first 8 bits, if any dont match preamble not detected. Otherwise, preamble detected.
     bool preamble_detected = true;
     for(int i = 0; i < 8; i++) {
-        if( FIFO[i] != this.TLM[i])
+        if( FIFO[i] != this->TLM[i])
             preamble_detected = false;
     }
 
