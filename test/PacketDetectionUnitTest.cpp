@@ -10,28 +10,13 @@ MU_TEST(with_preamble_and_parity_matching){
     int D29star = prev_word[28];
     int D30star = prev_word[29];
 
-    int FIFO[30] = {};
+    //Computed FIFO from PacketCreation.cpp
+    //First 8 bits match preamble = 1000 1011
+    //D[1:24] = d[1:24] xor D30star
+    //These data values use d[1:8] = !(1000 1011) = 0111 0100, d[9:24] = 0
+    //                       D29star = 1, D30star = 1
 
-    int d[25] = {0, 0, 1, 1, 1, 0, 1, 0, 0}; //inverse of preamble because we are xoring it with D30Star = 1, so this will give the preamble. d[0] = 0 to align with indexing.
-
-    for(int i = 1; i < 25; i++) { //Encode data with D30Star, according to encoding specification
-        FIFO[i-1] = (d[i] + D30star) % 2;
-    }
-
-
-    int D25_computed = (D29star + d[1] + d[2] + d[3] + d[5] + d[6] + d[10] + d[11] + d[12] + d[13] + d[14] + d[17] + d[18] + d[20] + d[23]) % 2;
-    int D26_computed = (D30star + d[2] + d[3] + d[4] + d[6] + d[7] + d[11] + d[12] + d[13] + d[14] + d[15] + d[18] + d[19] + d[21] + d[24]) % 2;
-    int D27_computed = (D29star + d[1] + d[3] + d[4] + d[5] + d[7] + d[8] + d[12] + d[13] + d[14] + d[15] + d[16] + d[19] + d[20] + d[22]) % 2;
-    int D28_computed = (D30star + d[2] + d[4] + d[5] + d[6] + d[8] + d[9] + d[13] + d[14] + d[15] +d[16] + d[17] + d[20] + d[21] + d[23]) % 2;
-    int D29_computed = (D30star + d[1] + d[3] + d[5] + d[6] + d[7] + d[9] + d[10] + d[14] + d[15] + d[16] + d[17] + d[18] + d[21] + d[22] + d[24]) % 2;
-    int D30_computed = (D29star + d[3] + d[5] + d[6] + d[8] + d[9] + d[10] + d[11] + d[13] + d[15] + d[19] + d[22] + d[23] + d[24]) % 2;
-
-    FIFO[24] = D25_computed;
-    FIFO[25] = D26_computed;
-    FIFO[26] = D27_computed;
-    FIFO[27] = D28_computed;
-    FIFO[28] = D29_computed;
-    FIFO[29] = D30_computed;
+    int FIFO[30] = {1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1};
 
     auto result = PDU.clock(prev_word, FIFO);
     mu_assert(result, "preamble with matching parity failed");
@@ -46,28 +31,16 @@ MU_TEST(with_preamble_and_parity_not_matching){
 
     int D29star = prev_word[28];
     int D30star = prev_word[29];
-    int FIFO[30] = {};
 
-    int d[25] = {0, 0, 1, 1, 1, 0, 1, 0, 0}; //inverse of preamble because we are xoring it with D30Star = 1, so this will give the preamble. d[0] = 0 to align with indexing.
+    //Computed FIFO from PacketCreation.cpp
+    //First 8 bits match preamble = 1000 1011
+    //D[1:24] = d[1:24] xor D30star
+    //These data values use d[1:8] = !(1000 1011) = 0111 0100, d[9:24] = 0
+    //                       D29star = 1, D30star = 1
 
-    for(int i = 1; i < 25; i++) {
-        FIFO[i-1] = (d[i] + D30star) % 2;
-    }
+    //Then finally to make parity not match D30 is flipped
 
-
-    int D25_computed = (D29star + d[1] + d[2] + d[3] + d[5] + d[6] + d[10] + d[11] + d[12] + d[13] + d[14] + d[17] + d[18] + d[20] + d[23]) % 2;
-    int D26_computed = (D30star + d[2] + d[3] + d[4] + d[6] + d[7] + d[11] + d[12] + d[13] + d[14] + d[15] + d[18] + d[19] + d[21] + d[24]) % 2;
-    int D27_computed = (D29star + d[1] + d[3] + d[4] + d[5] + d[7] + d[8] + d[12] + d[13] + d[14] + d[15] + d[16] + d[19] + d[20] + d[22] + 1) % 2; //Added +1 to make parity not match
-    int D28_computed = (D30star + d[2] + d[4] + d[5] + d[6] + d[8] + d[9] + d[13] + d[14] + d[15] +d[16] + d[17] + d[20] + d[21] + d[23]) % 2;
-    int D29_computed = (D30star + d[1] + d[3] + d[5] + d[6] + d[7] + d[9] + d[10] + d[14] + d[15] + d[16] + d[17] + d[18] + d[21] + d[22] + d[24]) % 2;
-    int D30_computed = (D29star + d[3] + d[5] + d[6] + d[8] + d[9] + d[10] + d[11] + d[13] + d[15] + d[19] + d[22] + d[23] + d[24]) % 2;
-
-    FIFO[24] = D25_computed;
-    FIFO[25] = D26_computed;
-    FIFO[26] = D27_computed;
-    FIFO[27] = D28_computed;
-    FIFO[28] = D29_computed;
-    FIFO[29] = D30_computed;
+    int FIFO[30] = {1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0};
 
     auto result = PDU.clock(prev_word, FIFO);
     mu_assert(!result, "preamble without matching parity failed"); //Note: mu_assert checks that the result is true. In this case we want the function to return false (parity not matching)
@@ -82,28 +55,16 @@ MU_TEST(without_preamble_and_parity_matching){
 
     int D29star = prev_word[28];
     int D30star = prev_word[29];
-    int FIFO[30] = {};
 
-    int d[25] = {0, 1, 1, 1, 1, 0, 1, 0, 0}; //inverse of preamble because we are xoring it with D30Star = 1. d[0] = 0 to align with indexing. First bit of preamble flipped so it won't match
+   //Computed FIFO from PacketCreation.cpp
+    //First 8 bits match preamble = 1000 1011
+    //D[1:24] = d[1:24] xor D30star
+    //These data values use d[1:8] = !(1000 1011) = 0111 0100, d[9:24] = 0
+    //                       D29star = 1, D30star = 1
 
-    for(int i = 1; i < 25; i++) {
-        FIFO[i-1] = (d[i] + D30star) % 2;
-    }
+    //Then finally to make preamble not match D1 is flipped
 
-
-    int D25_computed = (D29star + d[1] + d[2] + d[3] + d[5] + d[6] + d[10] + d[11] + d[12] + d[13] + d[14] + d[17] + d[18] + d[20] + d[23]) % 2;
-    int D26_computed = (D30star + d[2] + d[3] + d[4] + d[6] + d[7] + d[11] + d[12] + d[13] + d[14] + d[15] + d[18] + d[19] + d[21] + d[24]) % 2;
-    int D27_computed = (D29star + d[1] + d[3] + d[4] + d[5] + d[7] + d[8] + d[12] + d[13] + d[14] + d[15] + d[16] + d[19] + d[20] + d[22]) % 2;
-    int D28_computed = (D30star + d[2] + d[4] + d[5] + d[6] + d[8] + d[9] + d[13] + d[14] + d[15] +d[16] + d[17] + d[20] + d[21] + d[23]) % 2;
-    int D29_computed = (D30star + d[1] + d[3] + d[5] + d[6] + d[7] + d[9] + d[10] + d[14] + d[15] + d[16] + d[17] + d[18] + d[21] + d[22] + d[24]) % 2;
-    int D30_computed = (D29star + d[3] + d[5] + d[6] + d[8] + d[9] + d[10] + d[11] + d[13] + d[15] + d[19] + d[22] + d[23] + d[24]) % 2;
-
-    FIFO[24] = D25_computed;
-    FIFO[25] = D26_computed;
-    FIFO[26] = D27_computed;
-    FIFO[27] = D28_computed;
-    FIFO[28] = D29_computed;
-    FIFO[29] = D30_computed;
+    int FIFO[30] = {0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1};
 
     auto result = PDU.clock(prev_word, FIFO);
     mu_assert(!result, "without preamble with matching parity failed"); //We pass !result since this test is without the preamble and passes if result == FALSE
@@ -117,28 +78,16 @@ MU_TEST(without_preamble_and_parity_not_matching){
 
     int D29star = prev_word[28];
     int D30star = prev_word[29];
-    int FIFO[30] = {};
 
-    int d[25] = {0, 1, 1, 1, 1, 0, 1, 0, 0}; //inverse of preamble because we are xoring it with D30Star = 1. d[0] = 0 to align with indexing. First bit of preamble flipped so it won't match
+    //Computed FIFO from PacketCreation.cpp
+    //First 8 bits match preamble = 1000 1011
+    //D[1:24] = d[1:24] xor D30star
+    //These data values use d[1:8] = !(1000 1011) = 0111 0100, d[9:24] = 0
+    //                       D29star = 1, D30star = 1
 
-    for(int i = 1; i < 25; i++) {
-        FIFO[i-1] = (d[i] + D30star) % 2;
-    }
+    //Then finally to make preamble and parity not match, D1 and D30 are flipped.
 
-
-    int D25_computed = (D29star + d[1] + d[2] + d[3] + d[5] + d[6] + d[10] + d[11] + d[12] + d[13] + d[14] + d[17] + d[18] + d[20] + d[23]) % 2;
-    int D26_computed = (D30star + d[2] + d[3] + d[4] + d[6] + d[7] + d[11] + d[12] + d[13] + d[14] + d[15] + d[18] + d[19] + d[21] + d[24]) % 2;
-    int D27_computed = (D29star + d[1] + d[3] + d[4] + d[5] + d[7] + d[8] + d[12] + d[13] + d[14] + d[15] + d[16] + d[19] + d[20] + d[22] + 1) % 2; //Added +1 to make parity not match
-    int D28_computed = (D30star + d[2] + d[4] + d[5] + d[6] + d[8] + d[9] + d[13] + d[14] + d[15] +d[16] + d[17] + d[20] + d[21] + d[23]) % 2;
-    int D29_computed = (D30star + d[1] + d[3] + d[5] + d[6] + d[7] + d[9] + d[10] + d[14] + d[15] + d[16] + d[17] + d[18] + d[21] + d[22] + d[24]) % 2;
-    int D30_computed = (D29star + d[3] + d[5] + d[6] + d[8] + d[9] + d[10] + d[11] + d[13] + d[15] + d[19] + d[22] + d[23] + d[24]) % 2;
-
-    FIFO[24] = D25_computed;
-    FIFO[25] = D26_computed;
-    FIFO[26] = D27_computed;
-    FIFO[27] = D28_computed;
-    FIFO[28] = D29_computed;
-    FIFO[29] = D30_computed;
+    int FIFO[30] = {0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0};
 
     auto result = PDU.clock(prev_word, FIFO);
     mu_assert(!result, "without preamble and without matching parity failed"); //We Pass !result since this test has wrong preamble and parity, so it passes if result == FALSE
