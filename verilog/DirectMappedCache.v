@@ -47,6 +47,9 @@ wire [INDEX_LENGTH - 1: 0] index;
 wire [TAG_LENGTH - 1: 0] tag;
 reg  [CACHE_LINE_LENGTH - 1: 0] cache [NUM_OF_CACHE_LINES - 1: 0]; //Individual Cache Lines are packed, but the collection of lines is unpacked
 
+//Iterator Variables
+integer i = 0;
+
 //NOTE: Assume all inputs are registered, so that tag, index, block_offset can be set via assign
 //      and therefore be available on the same clock cycle
 assign index = address[INDEX_LENGTH + BLOCK_OFFSET_LENGTH - 1 -: INDEX_LENGTH];
@@ -60,6 +63,10 @@ always @(posedge clk ) begin
         data_o <= 0;
         hit <= 0;
         miss <= 0;
+
+        for(i = 0; i < NUM_OF_CACHE_LINES; i = i + 1) begin
+            cache[i][VALID_BIT_INDEX] <= 0;
+        end
     end
 end
 
@@ -74,7 +81,7 @@ always @(posedge clk) begin
                     miss <= 0;
                     
                     //Should this be output here? Or just assign this constantly and only interpret in controller?
-                    data_o <= cache[index][block_offset*BLOCK_SIZE - 1 -: BLOCK_SIZE];
+                    data_o <= cache[index][block_offset*BLOCK_SIZE + BLOCK_SIZE - 1 -: BLOCK_SIZE];
             end
             else begin
                 //Cache line tag did not match input tag, its a miss
