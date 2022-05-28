@@ -215,8 +215,10 @@ initial begin
         $display("---------------------------------------------------------------------------------\n");
     end
     
+    //NOTE: Test 2 and 3 do not correctly check if they operation worked or not. I visually inspected.
+    //      I think to actually verify you would need to read from cache and compare to data_from_CPU
     $display("---------------------------------------------------------------------------------");
-    $display("Test 2: write functionality");
+    $display("Test 2: write functionality and mem read functionality");
     $display("---------------------------------------------------------------------------------\n");
     @(negedge clk_i);
     start_from_CPU_i = 1; write_i = 1; tag = 'b0; index = 'b1; block_offset = 'b0; data_from_CPU_i = 'b0;
@@ -233,6 +235,29 @@ initial begin
     else begin
         $display("---------------------------------------------------------------------------------");
         $display("Test 2 Failure D: !");
+        $display("Data received to CPU: %d", data_to_CPU_o);
+        $display("---------------------------------------------------------------------------------\n");
+    end
+    
+    $display("---------------------------------------------------------------------------------");
+    $display("Test 3: cache flushing and mem write functionality");
+    $display("---------------------------------------------------------------------------------\n");
+    @(negedge clk_i);
+    //Need to write to cache index 1 with wrong tag to initiate flushing
+    start_from_CPU_i = 1; write_i = 1; tag = 'b1; index = 'b1; block_offset = 'b0; data_from_CPU_i = 'b0;
+    #10
+    start_from_CPU_i = 0; write_i = 0;
+    #10
+    
+    wait(ready_to_CPU_o);
+    if(data_to_CPU_o == 0) begin
+        $display("---------------------------------------------------------------------------------");
+        $display("Test 3 Success :D !");
+        $display("---------------------------------------------------------------------------------\n");
+    end
+    else begin
+        $display("---------------------------------------------------------------------------------");
+        $display("Test 3 Failure D: !");
         $display("Data received to CPU: %d", data_to_CPU_o);
         $display("---------------------------------------------------------------------------------\n");
     end
