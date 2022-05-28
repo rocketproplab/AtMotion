@@ -1,0 +1,9 @@
+xrun \
++access+rwc \
++xm64bit \
++xmstatus \
++xmtimescale+1ns/1ps \
+#+xmseq_udp_delay+20ps \
++xmoveride_timescale \
+-v ../DirectMappedCache.v \
+../DirectMappedCache_tb.v \
